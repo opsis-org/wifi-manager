@@ -11,7 +11,7 @@ fs.unlinkSync('./dist/index.html');
 // Creates a 96 character wide file containing minimized html that
 // can be served to requests not accepting gzipped responses
 function createTxtFile() {
-    // The minimized file took us from 8.3kb to 5.6kb
+    // The minimized file took us from 7.5kb to 4.4kb
     const input = fs.readFileSync('./dist/index.html', 'utf8');
     const escaped = input.replaceAll('"','\\"');
 
@@ -40,7 +40,7 @@ function createTxtFile() {
 // Creates a 16 hex column file containing gzipped html that
 // can be served to requests accepting gzipped responses
 function createHexFile() {
-    // The gzipped file took us from 5.6kb to 2.5kb
+    // The gzipped file took us from 4.4kb to 1.8kb
     const input = fs.readFileSync('./dist/index.html.gz', 'hex');
 
     let output = '';
