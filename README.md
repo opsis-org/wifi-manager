@@ -4,6 +4,15 @@
 
 When you build an ESP32 DIY device for your home, you can often just hardcode your wifi credentials and that is the end of it. In case you decide to publish your project you now have to make sure not to publish those credentials. This was the reason that I wanted to make it easy for myself to do a quick project but at the same time have it handle wifi credentials like most hardware you buy in the store does.
 
+<div align="center">
+	<br>
+   <a href="./assets/manager.jpg"><img src="./assets/manager_small.jpg"></a>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <a href="./assets/confirmation.jpg"><img src="./assets/confirmation_small.jpg"></a>
+   <br>
+   <br>
+</div>
+
 With very few lines of code you'll have your own wifi manager up and running:
 
 ```c++
@@ -39,11 +48,16 @@ Once you start the management server you will be able to access the wifi `WIFI-M
 ### Scans available networks
 It will scan for available networks nearby and present them in a dropdown for you to choose from. In case your SSID is not on the list (out of range, hidden SSID, etc) you can choose to specify a custom SSID by choosing `Other network` in the dropdown.
 
+### Automatic reconnect
+In case the ESP32 is disconnected from the wifi it will automatically try to reconnect.
+
+### Support for gzip response
+If the request has a `Accept-Encoding` header set with support for gzip, it will send a compressed version of the wifi manager. The UI is 7.5kb in it original state. When minimized it is reduced to 4.4kb and when compressed it comes down to only 1.8kb.
+
 ### Custom UI
 You can override the default UI by putting your own code in `/wifi-manager` on the SPIFFS. It will look for an index.html and serve that if it exists. Refer to `/interface/src/index.html` to see how you could build your own UI.
 
-### Automatic reconnect
-In case the ESP32 is disconnected from the wifi it will automatically try to reconnect.
+_Note:_ Custom UIs does not have support for gzipped responses, but remember to at least minify your html, stylesheets and javascript. It will definitely help.
 
 ## Improvements
 
