@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WiFi Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <link rel="icon" type="image/ico" href="data:@file/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAABMLAAATCwAAAAAAAAAAAAAAAAAAy24BAP//0ADktEYp8NaXovjt0e79+O///v36//78+P/9+O7/+O3R7vDWmKbktkgt////ANB9AQAAAAAA0HsAAPHYjwDmuU829OCy0f379P///////vv1//foxf/+/Pj////////////++/X/9OG01ea6UTrz3Z0A04QBAOS0QgDhqywb892qxf78+P////////////347v/ovlz/9+nH//////////////////79+f/z3qzI4awuHeS0QwD///8A7c2Affz26f///////////////////v3/68dy/+vIdP/+/vv//////////////////Pfq/+3NgH7///8A36UcGfXits////////////////////////////Laov/irzb/+OzQ///////////////////////04bTN3qIWF+e7VEL57tXw/////////////////Pjt//z26f/36sn/4a0v/+3Mf////v3/////////////////+e3S7ea5TjzpwmZX+/Pg+P////////////////HZoP/ktEL/6L5c/+GsL//jsTv/+e/X//////////////////rx3PbowF9O6L9eTfrx2/X////////////////15Lv/4Koo/+CoI//gqCT/36ch/+7Phv////7////////////579fy57xWROOwOSr36MXh////////////////+/Ph/+OzPv/gqCP/5bZI/+jAYf/pwmX//fju////////////9ubB3OGtMCTKbQAG8NaXo/779v////////////789//owGD/36cg/+a7U//89uj//Pjt///+/P///////fv0//DVlJu+TAAE6sVtAOa6UTj258Pk///+////////////79KN/9+nIf/hqyv/9ubA//////////////79//blvt/luEsy6cJkANqYDgAxAAAA6sVtX/jrzu3//v3///////ry3f/y2qL/8tqh//rx3f///////v36//bnw+XpwWRT////ANeRCAAAAAAA25sUAMhlAALpw2lY9ubA4P78+P///////////////////////Pfr/vPfrsjnvVpDnAAAAdWQCgAAAAAAAAAAAAAAAADUhwUAAAAAAOa4Tzby26W9/Pfr/v/////+/Pj/9+rK6e3PhYXhrDMa9+mJAMdjAAAAAAAAAAAAAAAAAAAAAAAAAAAAALg6AADrx1UA36YnF+/Sj5v68dv8896rwua6Uj3IaAAC2JMMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOKvNQDhrTYV6L5cj+S1SCfrx10AtzgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AcAAMADAACAAQAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIABAACAAwAAwAMAAOAPAAD4HwAA/H8AAA==">
+    <style>
+      html, body {
+          height: 100%;
+      }
+
+      html {
+          background-color: #0F2027;
+      }
+
+      body {
+          margin: 0;
+
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+
+          font-family: Verdana, sans-serif;
+          font-weight: 300;
+          color: #fff;
+
+          background: linear-gradient(to bottom, #2C5364, #203A43, #0F2027);
+      }
+
+      button {
+          margin-top: 12px;
+          padding: 8px 14px;
+
+          border: none;
+          border-radius: 3px;
+
+          font-family: Verdana, sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          text-shadow: 0 1px 0 rgba(19, 74, 70, .4);
+          text-transform: uppercase;
+          color: #fff;
+
+          background-color: #7AB893;
+      }
+
+      h1 {
+          font-size: 22px;
+          margin: 0 0 20px 0;
+      }
+
+      h2 {
+          font-size: 16px;
+          margin: 0;
+      }
+
+      span {
+          display: flex;
+          margin-bottom: 6px;
+      }
+
+      input, select, label {
+          box-sizing: border-box;
+          height: 34px;
+      }
+
+      input, select {
+          width: 160px;
+
+          border: 0;
+          border-top-right-radius: 3px;
+          border-bottom-left-radius: 3px;
+          border-bottom-right-radius: 0px;
+          border-top-left-radius: 0px;
+
+          outline: 0;
+
+          font-family: Verdana, sans-serif;
+          font-size: 11px;
+          font-weight: 400;
+          text-indent: 8px;
+          color: #377D6A;
+
+          background: #efefef;
+      }
+
+      input::-webkit-input-placeholder {
+          color: #aaa;
+      }
+
+      label {
+          width: 100px;
+          padding: 10px 14px;
+
+          display: inline-block;
+
+          border-top-right-radius: 0px;
+          border-bottom-left-radius: 0px;
+          border-bottom-right-radius: 3px;
+          border-top-left-radius: 3px;
+
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          color: rgb(42, 59, 49);
+          text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+
+          background: #7AB893;
+      }
+
+      #custom-ssid {
+          display: none;
+      }
+
+      #confirmation {
+          display: none;
+
+          position: absolute;
+          width: 275px;
+          padding: 24px;
+
+          border-radius: 3px;
+
+          font-size: 12px;
+          color: rgb(42, 59, 49);
+
+          background: #7AB893;
+          box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      }
+
+      #confirmation p:last-child {
+          margin-bottom: 0;
+      }
+
+    </style>
+    <script>
+      function getAvailableNetworks() {
+          const xhr = new XMLHttpRequest();
+
+          xhr.addEventListener("load", () => onNetworksLoaded(xhr.responseText));
+          xhr.open('GET', '/networks');
+          xhr.send();
+      }
+
+      function onNetworksLoaded(data) {
+          const networks = JSON.parse(data);
+
+          const select = document.getElementById('network');
+          select.disabled = false;
+          select.remove(0);
+
+          for (const network of networks) {
+              const option = document.createElement("option");
+              option.value = network;
+              option.text = network;
+
+              select.appendChild(option);
+          }
+
+          const option = document.createElement("option");
+          option.value = '';
+          option.text = 'Other network';
+
+          select.appendChild(option);
+
+          onSelectedNetworkChanged(select.value);
+      }
+
+      function onSelectedNetworkChanged(network) {
+          const wrapper = document.getElementById('custom-ssid');
+          const ssid = document.getElementById('ssid');
+
+          const display = network.length ? 'none' : 'flex';
+          const value = network.length ? network : '';
+
+          wrapper.style.display = display;
+          ssid.value = value;
+      }
+
+      function saveNetworkCredentials() {
+          const payload = getCredentialsPayload();
+          const xhr = new XMLHttpRequest();
+
+          xhr.addEventListener("load", () => onNetworkCredentialsSaved(xhr.status));
+          xhr.open('PUT', '/credentials');
+          xhr.send(payload);
+      }
+
+      function getCredentialsPayload() {
+          const ssid = document.getElementById('ssid').value;
+          const password = document.getElementById('password').value;
+          const hostname = document.getElementById('hostname').value;
+
+          const payload = new FormData();
+
+          payload.append('ssid', ssid);
+          payload.append('password', password);
+          payload.append('hostname', hostname);
+
+          return payload;
+      }
+
+      function onNetworkCredentialsSaved(status) {
+          if (status === 204) {
+              const confirmation = document.getElementById('confirmation');
+              confirmation.style.display = 'inline';
+          } else {
+              alert('Error saving network credentials');
+          }
+      }
+
+      document.addEventListener('DOMContentLoaded', getAvailableNetworks);
+    </script>
+  </head>
+  <body>
+      <h1>WiFi Manager</h1>
+
+      <span>
+        <label for="network">Network</label>
+        <select id="network" onchange="onSelectedNetworkChanged(this.value)" disabled>
+          <option>Loading networks</option>
+        </select>
+      </span>
+
+      <span id="custom-ssid">
+        <label for="ssid">WLAN SSID</label>
+        <input id="ssid" type="text" placeholder="Name of the network" />
+      </span>
+
+      <span>
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Only if required" />
+      </span>
+
+      <span>
+        <label for="hostname">Hostname</label>
+        <input id="hostname" type="text" placeholder="eg. 'my-esp32'" />
+      </span>
+
+      <button onclick="saveNetworkCredentials()">Save and restart</button>
+
+      <div id="confirmation">
+        <h2>Credentials saved!</h2>
+        <p>
+          The controller is now being restarted and will try to
+          connect to the WiFi with the credentials you provided.
+        </p>
+        <p>
+          In case the controller can't connect, the WiFi Manager
+          will come back online again.
+        </p>
+        <p>
+          Use the hostname (if provided) or find the controllers IP address
+          in your router's DHCP client table and visit the UI in the browser.
+        </p>
+      </div>
+
+  </body>
+</html>
