@@ -204,7 +204,7 @@ bool WifiManager::acceptsCompressedResponse(AsyncWebServerRequest *request) {
     if (request->hasHeader("Accept-Encoding")){
         AsyncWebHeader* header = request->getHeader("Accept-Encoding");
         String value = header->value();
-        bool hasGzip = value.indexOf("gzip") > 0;
+        bool hasGzip = value.indexOf("gzip") > -1;
 
         return hasGzip;
     }
