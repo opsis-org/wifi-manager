@@ -5,12 +5,12 @@
 When you build an ESP32 DIY device for your home, you can often just hardcode your wifi credentials and that is the end of it. In case you decide to publish your project you now have to make sure not to publish those credentials. This was the reason that I wanted to make it easy for myself to do a quick project but at the same time have it handle wifi credentials like most hardware you buy in the store does.
 
 <div align="center">
-	<br>
-   <a href="./assets/manager.jpg"><img src="./assets/manager_small.jpg"></a>
-   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   <a href="./assets/confirmation.jpg"><img src="./assets/confirmation_small.jpg"></a>
-   <br>
-   <br>
+    <br>
+    <a href="./assets/manager.jpg"><img src="./assets/manager_small.jpg"></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="./assets/confirmation.jpg"><img src="./assets/confirmation_small.jpg"></a>
+    <br>
+    <br>
 </div>
 
 With very few lines of code you'll have your own wifi manager up and running:
@@ -21,23 +21,23 @@ With very few lines of code you'll have your own wifi manager up and running:
 WifiManager wifiManager;
 
 void setup() {
-	// Attempts to connect to Wifi using stored credentials
-	bool connected = wifiManager.connectToWifi();
+    // Attempts to connect to Wifi using stored credentials
+    bool connected = wifiManager.connectToWifi();
 
-	if (!connected) {
-		// If unable to connect on boot, the management server is started
-		// so new credentials can be set using the web interface.
-		wifiManager.startManagementServer();
-	}
+    if (!connected) {
+        // If unable to connect on boot, the management server is started
+        // so new credentials can be set using the web interface.
+        wifiManager.startManagementServer();
+    }
 }
 
 void loop() {
-	// Continously checks if we are connected on WIFI. The wifi manager
-	// will automatically reconnect if connection is dropped.
-	wifiManager.check();
+    // Continously checks if we are connected on WIFI. The wifi manager
+    // will automatically reconnect if connection is dropped.
+    wifiManager.check();
 
-	// Do your main application loop here.
-	// ...
+    // Do your main application loop here.
+    // ...
 }
 ```
 
