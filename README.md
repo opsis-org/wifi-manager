@@ -33,11 +33,11 @@ void setup() {
 
 void loop() {
 	// Continously checks if we are connected on WIFI. The wifi manager
-    // will automatically reconnect if connection is dropped.
+	// will automatically reconnect if connection is dropped.
 	wifiManager.check();
 
-    // Do your main application loop here.
-    // ...
+	// Do your main application loop here.
+	// ...
 }
 ```
 
