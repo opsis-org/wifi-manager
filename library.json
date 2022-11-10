@@ -1,6 +1,6 @@
 {
     "name": "Wifi Manager for ESP32",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "An easy to use Wifi Manager for your ESP32 projects that servces a nice frontend for selecting available networks from a list or specifying your own",
     "keywords": "esp32, wifi, manager",
     "repository":
@@ -18,7 +18,7 @@
     ],
     "license": "MIT",
     "dependencies": {
-      "me-no-dev/ESP Async WebServer": "^1.2.3"
+      "esphome/ESPAsyncWebServer-esphome": "^3.0.0"
     },
     "frameworks": ["arduino"],
     "platforms": ["espressif32"]
