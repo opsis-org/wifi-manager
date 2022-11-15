@@ -69,7 +69,11 @@ bool WifiManager::connectToWifi() {
 		return false;
 	}
 
-	WiFi.mode(WIFI_STA);
+	// This is default anyways, but it was there for good measure. Unfortunately it
+	// triggered a bug in the WiFi library since v2 of the espressif platform framework
+	// which made the hostname not apply correctly. Mentioned in CHANGELOG.md @ 1.0.2
+	// WiFi.mode(WIFI_STA);
+
 	WiFi.setSleep(WIFI_PS_NONE);
 
 	if (hostname != "") {
