@@ -69,12 +69,11 @@ bool WifiManager::connectToWifi() {
 		return false;
 	}
 
-	// This is default anyways, but it was there for good measure. Unfortunately it
-	// triggered a bug in the WiFi library since v2 of the espressif platform framework
-	// which made the hostname not apply correctly. Mentioned in CHANGELOG.md @ 1.0.2
-	// WiFi.mode(WIFI_STA);
-
+	WiFi.mode(WIFI_STA);
 	WiFi.setSleep(WIFI_PS_NONE);
+
+	// Fixes issue with mDNS where hostname was not set (v1.0.1) and mDNS crashed (v1.0.2)
+	WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
 
 	if (hostname != "") {
 		WiFi.setHostname(hostname.c_str());
