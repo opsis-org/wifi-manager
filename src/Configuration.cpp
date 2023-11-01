@@ -8,11 +8,16 @@ Configuration::Configuration() {
 	passPath = "/pass.txt";
 	hostnamePath = "/hostname.txt";
 
-	initSPIFFS();
+	fsInitialized = false;
 }
 
-// Initialize SPIFFS
 void Configuration::initSPIFFS() {
+	if (fsInitialized) {
+		return;
+	}
+
+	fsInitialized = true;
+
 	if (!SPIFFS.begin(true)) {
 		Serial.println("An error has occurred while mounting SPIFFS");
 		return;
@@ -47,6 +52,8 @@ String Configuration::getHostname() {
 
 // Read File from SPIFFS
 String Configuration::readFile(fs::FS &fs, const char *path) {
+	initSPIFFS();
+
 	Serial.printf("Reading file: %s\r\n", path);
 
 	File file = fs.open(path);
@@ -66,6 +73,8 @@ String Configuration::readFile(fs::FS &fs, const char *path) {
 
 // Write file to SPIFFS
 void Configuration::writeFile(fs::FS &fs, const char *path, const char *message) {
+	initSPIFFS();
+
 	Serial.printf("Writing file: %s\r\n", path);
 
 	File file = fs.open(path, FILE_WRITE);

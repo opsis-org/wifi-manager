@@ -14,6 +14,8 @@ class Configuration {
 		const char *passPath;
 		const char *hostnamePath;
 
+		bool fsInitialized;
+
 	public:
 		Configuration();
 
