@@ -5,13 +5,17 @@
 
 class Configuration {
 	protected:
-		String readFile(fs::FS &fs, const char *path);
+		void initSPIFFS();
+
 		void writeFile(fs::FS &fs, const char *path, const char *message);
+		String readFile(fs::FS &fs, const char *path);
+
+		const char *ssidPath;
+		const char *passPath;
+		const char *hostnamePath;
 
 	public:
 		Configuration();
-
-		void initSPIFFS();
 
 		void writeSSID(const char *ssid);
 		void writePass(const char *pass);

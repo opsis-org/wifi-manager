@@ -18,23 +18,21 @@ With very few lines of code you'll have your own wifi manager up and running:
 ```c++
 #include "WifiManager.h"
 
-WifiManager wifiManager;
-
 void setup() {
     // Attempts to connect to Wifi using stored credentials
-    bool connected = wifiManager.connectToWifi();
+    bool connected = WifiManager.connectToWifi();
 
     if (!connected) {
         // If unable to connect on boot, the management server is started
         // so new credentials can be set using the web interface.
-        wifiManager.startManagementServer();
+        WifiManager.startManagementServer();
     }
 }
 
 void loop() {
     // Continously checks if we are connected on WIFI. The wifi manager
     // will automatically reconnect if connection is dropped.
-    wifiManager.check();
+    WifiManager.check();
 
     // Do your main application loop here.
     // ...
@@ -65,17 +63,3 @@ _Note:_ Custom UIs does not have support for gzipped responses, but remember to 
 Currently updating the default UI is a manual step involving editing the `index.html` in /interface and building a new set of variables for `Data.cpp`. It would be nice if this was done automatically in the build process somehow, but it is not something I have spend any time on.
 
 It would be a great improvement going forward as it would lower the risk of doing it wrong or forgetting copying either the compressed or uncompressed data getting weird results depending on the browser used.
-
-## Known issues
-When trying to connect to a wifi that is not available, it is not scanning available correctly. The list is empty. Steps to reproduce:
- - Get wifi manager running on a clean esp and goto the management page
- - Confirm you have a list of available networks
- - Input invalid wifi credentials and save
- - ESP will restart and fail connecting and start wifi manager again
- - Goto management page again and confirm the list of available networks is now empty
-
-If saving credentials fails, you are not informed and spinner stays forever. Steps to reproduce:
- - Access wifi managers page
- - Turn off ESP
- - Click save and restart
- - Spinner spins forever

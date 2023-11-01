@@ -8,17 +8,20 @@
 #include "Data.h"
 #include "Configuration.h"
 
-WifiManager::WifiManager()
+WifiManagerClass::WifiManagerClass()
 	: _server(80), _config() {
 	_reconnectIntervalCheck = 5000;
 	_connectionTimeout = 10000;
 
 	_nextReconnectCheck = 0;
 	_connected = false;
+
 	_networks = "";
+	_hostname = "";
+	_ssid = "";
 }
 
-void WifiManager::check() {
+void WifiManagerClass::check() {
 	if (_connected && millis() > _nextReconnectCheck) {
 		if (WiFi.status() != WL_CONNECTED) {
 			_connected = false;
@@ -34,14 +37,22 @@ void WifiManager::check() {
 	}
 }
 
-String WifiManager::getAvailableNetworks() {
+String WifiManagerClass::getAvailableNetworks() {
 	Serial.println("Scanning networks...");
+
+	// We need to make sure we are disconnected
+	// before trying to scan for networks. We do
+	// not care about the return value from it.
+	WiFi.disconnect();
 
 	byte networks = WiFi.scanNetworks();
 
 	String json = "[";
 	String separator = "";
 
+	// If negative value is returned from the scan we will
+	// just return the empty list as the loop will not
+	// run. This is in case of WIFI_SCAN_FAILED or similar.
 	for (int i = 0; i < networks; i++) {
 		String network = "\"" + WiFi.SSID(i) + "\"";
 
@@ -56,30 +67,28 @@ String WifiManager::getAvailableNetworks() {
 	return json;
 }
 
-bool WifiManager::connectToWifi() {
-	_config.initSPIFFS();
-
-	String ssid = _config.getSSID();
+bool WifiManagerClass::connectToWifi() {
+	_ssid = _config.getSSID();
+	_hostname = _config.getHostname();
 	String pass = _config.getPass();
-	String hostname = _config.getHostname();
 
-	if (ssid == "") {
+	if (_ssid == "") {
 		Serial.println("No connection information specified");
 
 		return false;
 	}
 
-	WiFi.mode(WIFI_STA);
+	WiFi.mode(WIFI_MODE_STA);
 	WiFi.setSleep(WIFI_PS_NONE);
 
 	// Fixes issue with mDNS where hostname was not set (v1.0.1) and mDNS crashed (v1.0.2)
 	WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
 
-	if (hostname != "") {
-		WiFi.setHostname(hostname.c_str());
-		Serial.println("Setting hostname " + hostname);
+	if (_hostname != "") {
+		WiFi.setHostname(_hostname.c_str());
+		Serial.println("Setting hostname " + _hostname);
 
-		if (MDNS.begin(hostname.c_str())) {
+		if (MDNS.begin(_hostname.c_str())) {
 			Serial.println("mDNS responder started");
 		} else {
 			Serial.println("Unable to start mDNS responder");
@@ -90,14 +99,14 @@ bool WifiManager::connectToWifi() {
 
 	Serial.println("Connecting to WiFi...");
 
-	WiFi.begin(ssid.c_str(), pass.c_str());
+	WiFi.begin(_ssid.c_str(), pass.c_str());
 
 	_connected = waitForConnection();
 
 	return _connected;
 }
 
-bool WifiManager::waitForConnection() {
+bool WifiManagerClass::waitForConnection() {
 	unsigned long timeout = millis() + _connectionTimeout;
 
 	while (WiFi.status() != WL_CONNECTED) {
@@ -114,11 +123,11 @@ bool WifiManager::waitForConnection() {
 	return true;
 }
 
-void WifiManager::startManagementServer() {
+void WifiManagerClass::startManagementServer() {
     startManagementServer("WIFI-MANAGER");
 }
 
-void WifiManager::startManagementServer(const char *ssid) {
+void WifiManagerClass::startManagementServer(const char *ssid) {
 	Serial.println("Starting Management AP");
 
 	// Prepare list of available networks
@@ -182,7 +191,7 @@ void WifiManager::startManagementServer(const char *ssid) {
 	_server.begin();
 }
 
-void WifiManager::serveDefaultUI() {
+void WifiManagerClass::serveDefaultUI() {
     Serial.printf("Compressed html: %d bytes\n", gzipBytes);
     Serial.printf("Uncompressed html: %d bytes\n", htmlBytes);
 
@@ -203,7 +212,7 @@ void WifiManager::serveDefaultUI() {
 	});
 }
 
-bool WifiManager::acceptsCompressedResponse(AsyncWebServerRequest *request) {
+bool WifiManagerClass::acceptsCompressedResponse(AsyncWebServerRequest *request) {
     if (request->hasHeader("Accept-Encoding")){
         AsyncWebHeader* header = request->getHeader("Accept-Encoding");
         String value = header->value();
@@ -214,3 +223,21 @@ bool WifiManager::acceptsCompressedResponse(AsyncWebServerRequest *request) {
 
     return false;
 }
+
+String WifiManagerClass::getHostname() {
+	return _hostname;
+}
+
+String WifiManagerClass::getSSID() {
+	return _ssid;
+}
+
+int8_t WifiManagerClass::getRSSI() {
+	return WiFi.RSSI();
+}
+
+bool WifiManagerClass::isConnected() {
+	return _connected;
+}
+
+WifiManagerClass WifiManager;

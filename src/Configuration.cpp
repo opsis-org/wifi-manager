@@ -2,18 +2,22 @@
 
 #include <SPIFFS.h>
 
-// File paths to save input values permanently
-const char *ssidPath = "/ssid.txt";
-const char *passPath = "/pass.txt";
-const char *hostnamePath = "/hostname.txt";
+Configuration::Configuration() {
+	// File paths to save input values permanently
+	ssidPath = "/ssid.txt";
+	passPath = "/pass.txt";
+	hostnamePath = "/hostname.txt";
 
-Configuration::Configuration() {}
+	initSPIFFS();
+}
 
 // Initialize SPIFFS
 void Configuration::initSPIFFS() {
 	if (!SPIFFS.begin(true)) {
 		Serial.println("An error has occurred while mounting SPIFFS");
+		return;
 	}
+
 	Serial.println("SPIFFS mounted successfully");
 }
 

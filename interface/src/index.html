@@ -44,6 +44,7 @@
           color: #fff;
 
           background-color: #7AB893;
+          cursor: pointer;
       }
 
       h1 {
@@ -156,14 +157,22 @@
           const xhr = new XMLHttpRequest();
 
           xhr.addEventListener("load", () => onNetworksLoaded(xhr.responseText));
-          xhr.open('GET', '/networks');
+          xhr.addEventListener("error", () => onNetworksError());
+          xhr.open("GET", "/networks");
           xhr.send();
       }
 
       function onNetworksLoaded(data) {
           const networks = JSON.parse(data);
 
-          const select = document.getElementById('network');
+          if (networks.length === 0) {
+              setNetworksMessage("No networks found");
+
+              return;
+          }
+
+          const select = document.getElementById("network");
+          select.addEventListener("change", () => onSelectedNetworkChanged(select.value));
           select.disabled = false;
           select.remove(0);
 
@@ -176,67 +185,99 @@
           }
 
           const option = document.createElement("option");
-          option.value = '';
-          option.text = 'Other network';
+          option.value = "";
+          option.text = "Other network";
 
           select.appendChild(option);
 
           onSelectedNetworkChanged(select.value);
       }
 
-      function onSelectedNetworkChanged(network) {
-          const wrapper = document.getElementById('custom-ssid');
-          const ssid = document.getElementById('ssid');
+      function onNetworksError() {
+          setNetworksMessage("Unable to fetch networks");
+      }
 
-          const display = network.length ? 'none' : 'flex';
-          const value = network.length ? network : '';
+      function setNetworksMessage(message) {
+          const ssid = document.getElementById("custom-ssid");
+          const network = document.getElementById("network-loading");
+
+          network.innerText = "Unable to fetch networks";
+          ssid.style.display = "flex";
+      }
+
+      function onSelectedNetworkChanged(network) {
+          const wrapper = document.getElementById("custom-ssid");
+          const ssid = document.getElementById("ssid");
+
+          const display = network.length ? "none" : "flex";
+          const value = network.length ? network : "";
 
           wrapper.style.display = display;
           ssid.value = value;
       }
 
       function saveNetworkCredentials() {
-          const manager = document.getElementById('manager');
-          const loader = document.getElementById('loader');
+          const manager = document.getElementById("manager");
+          const loader = document.getElementById("loader");
 
-          manager.style.display = 'none';
-          loader.style.display = 'inline';
+          manager.style.display = "none";
+          loader.style.display = "inline";
 
           const payload = getCredentialsPayload();
           const xhr = new XMLHttpRequest();
 
           xhr.addEventListener("load", () => onNetworkCredentialsSaved(xhr.status));
-          xhr.open('PUT', '/credentials');
+          xhr.addEventListener("error", () => onNetworkCredentialsError());
+          xhr.open("PUT", "/credentials");
           xhr.send(payload);
       }
 
       function getCredentialsPayload() {
-          const ssid = document.getElementById('ssid').value;
-          const password = document.getElementById('password').value;
-          const hostname = document.getElementById('hostname').value;
+          const ssid = document.getElementById("ssid").value;
+          const password = document.getElementById("password").value;
+          const hostname = document.getElementById("hostname").value;
 
           const payload = new FormData();
 
-          payload.append('ssid', ssid);
-          payload.append('password', password);
-          payload.append('hostname', hostname);
+          payload.append("ssid", ssid);
+          payload.append("password", password);
+          payload.append("hostname", hostname);
 
           return payload;
       }
 
       function onNetworkCredentialsSaved(status) {
-          const loader = document.getElementById('loader');
-          loader.style.display = 'none';
+          const loader = document.getElementById("loader");
+          loader.style.display = "none";
 
           if (status === 204) {
-              const confirmation = document.getElementById('confirmation');
-              confirmation.style.display = 'inline';
+              const confirmation = document.getElementById("confirmation");
+              confirmation.style.display = "inline";
           } else {
-              alert('Error saving network credentials');
+              onNetworkCredentialsError();
           }
       }
 
-      document.addEventListener('DOMContentLoaded', getAvailableNetworks);
+      function onNetworkCredentialsError() {
+          const manager = document.getElementById("manager");
+          const loader = document.getElementById("loader");
+
+          manager.style.display = "flex";
+          loader.style.display = "none";
+
+          // The timeout is simply to let the page rerender and hide
+          // the loader/show the manager before showing the error message
+          setTimeout(() => alert("Error saving network credentials"), 0 );
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Parcel for some reason doesnt rename function in the html when used
+        // like onclick='saveNetworkCredentials()' so we just attach it here instead
+        saveButton = document.getElementById("save");
+        saveButton.addEventListener("click", saveNetworkCredentials);
+
+        getAvailableNetworks();
+      });
     </script>
   </head>
   <body>
@@ -246,8 +287,8 @@
 
           <span>
             <label for="network">Network</label>
-            <select id="network" onchange="onSelectedNetworkChanged(this.value)" disabled>
-              <option>Loading networks</option>
+            <select id="network" disabled>
+              <option id="network-loading">Loading networks</option>
             </select>
           </span>
 
@@ -266,7 +307,7 @@
             <input id="hostname" type="text" placeholder="eg. 'my-esp32'" />
           </span>
 
-          <button onclick="saveNetworkCredentials()">Save and restart</button>
+          <button id="save">Save and restart</button>
       </div>
 
       <div id="loader"></div>

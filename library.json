@@ -1,6 +1,6 @@
 {
     "name": "Wifi Manager for ESP32",
-    "version": "1.0.3",
+    "version": "2.0.0",
     "description": "An easy to use Wifi Manager for your ESP32 projects that servces a nice frontend for selecting available networks from a list or specifying your own",
     "keywords": "esp32, wifi, manager",
     "repository":

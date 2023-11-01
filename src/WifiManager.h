@@ -2,13 +2,25 @@
 #define WIFI_MANAGER_H
 
 #include <ESPAsyncWebServer.h>
-#include <ESPmDNS.h>
-#include <SPIFFS.h>
-#include <WiFi.h>
 
 #include "Configuration.h"
 
-class WifiManager {
+class WifiManagerClass {
+	public:
+		WifiManagerClass();
+
+		bool connectToWifi();
+
+		void startManagementServer();
+		void startManagementServer(const char *ssid);
+
+		void check();
+
+		String getHostname();
+		String getSSID();
+		int8_t getRSSI();
+		bool isConnected();
+
 	private:
 		AsyncWebServer _server;
 		Configuration _config;
@@ -19,6 +31,8 @@ class WifiManager {
 		int _connectionTimeout;
 
 		String _networks;
+		String _hostname;
+		String _ssid;
 
 		unsigned long _nextReconnectCheck;
 
@@ -27,16 +41,8 @@ class WifiManager {
 		bool waitForConnection();
 		void serveDefaultUI();
 		bool acceptsCompressedResponse(AsyncWebServerRequest *request);
-
-	public:
-		WifiManager();
-
-		bool connectToWifi();
-
-		void startManagementServer();
-		void startManagementServer(const char *ssid);
-
-		void check();
 };
+
+extern WifiManagerClass WifiManager;
 
 #endif
