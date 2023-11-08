@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.2
+
+- Updated `getSSID()` to return the soft AP SSID if the management server is started
+
 ## 2.1.1
 
 - Updated `getLocalIP()` to `getIP()` to support both local and soft AP IP addresses
