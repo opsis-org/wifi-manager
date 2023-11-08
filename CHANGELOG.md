@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0
+
+- Added `getLocalIP()` as a utility method
+
 ## 2.0.0
 
 - The WifiManager is now more in line with other Arduino libraries, and there is no need to instantiate it on your own
