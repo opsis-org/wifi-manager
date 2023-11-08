@@ -138,6 +138,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 
 	WiFi.softAP(ssid);
 
+	_ssid = WiFi.softAPSSID();
 	_ip = WiFi.softAPIP();
 
 	Serial.println("Server IP Address:");
