@@ -117,8 +117,11 @@ bool WifiManagerClass::waitForConnection() {
 		}
 	}
 
-	Serial.println("IP Address:");
-	Serial.println(WiFi.localIP());
+	_ip = WiFi.localIP();
+
+	Serial.println("Assigned IP Address:");
+	Serial.println(_ip);
+
 
 	return true;
 }
@@ -135,9 +138,10 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 
 	WiFi.softAP(ssid);
 
-	IPAddress IP = WiFi.softAPIP();
+	_ip = WiFi.softAPIP();
 
-	Serial.printf("IP Address: %s\n", IP.toString().c_str());
+	Serial.println("Server IP Address:");
+	Serial.println(_ip);
 
 	bool hasCustomUI = SPIFFS.exists("/wifi-manager/index.html");
 
@@ -236,8 +240,8 @@ int8_t WifiManagerClass::getRSSI() {
 	return WiFi.RSSI();
 }
 
-IPAddress WifiManagerClass::getLocalIP() {
-	return WiFi.localIP();
+IPAddress WifiManagerClass::getIP() {
+	return _ip;
 }
 
 bool WifiManagerClass::isConnected() {
