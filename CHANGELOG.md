@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1
+
+- Updated `getLocalIP()` to `getIP()` to support both local and soft AP IP addresses
+
 ## 2.1.0
 
 - Added `getLocalIP()` as a utility method
