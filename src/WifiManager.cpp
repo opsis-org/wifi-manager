@@ -236,6 +236,10 @@ int8_t WifiManagerClass::getRSSI() {
 	return WiFi.RSSI();
 }
 
+IPAddress WifiManagerClass::getLocalIP() {
+	return WiFi.localIP();
+}
+
 bool WifiManagerClass::isConnected() {
 	return _connected;
 }

@@ -19,6 +19,8 @@ class WifiManagerClass {
 		String getHostname();
 		String getSSID();
 		int8_t getRSSI();
+		IPAddress getLocalIP();
+
 		bool isConnected();
 
 	private:
