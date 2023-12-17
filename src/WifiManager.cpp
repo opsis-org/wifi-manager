@@ -1,12 +1,15 @@
 #include "WifiManager.h"
 
 #include <ESPAsyncWebServer.h>
-#include <ESPmDNS.h>
-#include <SPIFFS.h>
+#include <LEAmDNS.h>
+#include <LittleFS.h>
 #include <WiFi.h>
 
 #include "Data.h"
 #include "Configuration.h"
+
+//const byte DNS_PORT = 53;
+IPAddress apIP(192, 168, 4, 1);
 
 WifiManagerClass::WifiManagerClass()
 	: _server(80), _config() {
@@ -22,13 +25,16 @@ WifiManagerClass::WifiManagerClass()
 }
 
 void WifiManagerClass::check() {
+  	//dnsServer.processNextRequest();
 	if (_connected && millis() > _nextReconnectCheck) {
 		if (WiFi.status() != WL_CONNECTED) {
 			_connected = false;
 
 			Serial.println("WiFi connection lost. Attempting to reconnect.");
 
-			WiFi.reconnect();
+			// FIXME
+			//WiFi.reconnect();
+			WiFi.disconnect();
 
 			waitForConnection();
 		}
@@ -54,7 +60,7 @@ String WifiManagerClass::getAvailableNetworks() {
 	// just return the empty list as the loop will not
 	// run. This is in case of WIFI_SCAN_FAILED or similar.
 	for (int i = 0; i < networks; i++) {
-		String network = "\"" + WiFi.SSID(i) + "\"";
+		String network = String("\"") + WiFi.SSID(i) + "\"";
 
 		if (json.indexOf(network) == -1) {
 			json += separator + network;
@@ -78,11 +84,12 @@ bool WifiManagerClass::connectToWifi() {
 		return false;
 	}
 
-	WiFi.mode(WIFI_MODE_STA);
-	WiFi.setSleep(WIFI_PS_NONE);
+	WiFi.mode(WIFI_STA);
+	// FIXME
+	//WiFi.setSleep(WIFI_PS_NONE);
 
 	// Fixes issue with mDNS where hostname was not set (v1.0.1) and mDNS crashed (v1.0.2)
-	WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+	//WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
 
 	if (_hostname != "") {
 		WiFi.setHostname(_hostname.c_str());
@@ -98,6 +105,9 @@ bool WifiManagerClass::connectToWifi() {
 	}
 
 	Serial.println("Connecting to WiFi...");
+
+	Serial.println(_ssid.c_str());
+	Serial.println(pass.c_str());
 
 	WiFi.begin(_ssid.c_str(), pass.c_str());
 
@@ -136,6 +146,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 	// Prepare list of available networks
 	_networks = getAvailableNetworks();
 
+  	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 	WiFi.softAP(ssid);
 
 	_ssid = WiFi.softAPSSID();
@@ -144,11 +155,13 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 	Serial.println("Server IP Address:");
 	Serial.println(_ip);
 
-	bool hasCustomUI = SPIFFS.exists("/wifi-manager/index.html");
+  	//dnsServer.start(DNS_PORT, "*", _ip);
+
+	bool hasCustomUI = LittleFS.exists("/wifi-manager/index.html");
 
 	if (hasCustomUI) {
 		_server
-			.serveStatic("/", SPIFFS, "/wifi-manager")
+			.serveStatic("/", LittleFS, "/wifi-manager")
 			.setDefaultFile("index.html");
 
 		Serial.println("Serving custom UI from /wifi-manager");
@@ -190,7 +203,8 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 
 		delay(1000);
 
-		ESP.restart();
+		//ESP.restart();
+		rp2040.reboot();
 	});
 
 	_server.begin();
