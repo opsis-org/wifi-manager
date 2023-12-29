@@ -25,7 +25,7 @@ class WifiManagerClass {
 		bool isConnected();
 
 	private:
-		//DNSServer dnsServer;
+		DNSServer dnsServer;
 		AsyncWebServer _server;
 		Configuration _config;
 

@@ -8,7 +8,7 @@
 #include "Data.h"
 #include "Configuration.h"
 
-//const byte DNS_PORT = 53;
+const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 4, 1);
 
 WifiManagerClass::WifiManagerClass()
@@ -25,7 +25,9 @@ WifiManagerClass::WifiManagerClass()
 }
 
 void WifiManagerClass::check() {
-  	//dnsServer.processNextRequest();
+	dnsServer.processNextRequest();
+	MDNS.update();
+
 	if (_connected && millis() > _nextReconnectCheck) {
 		if (WiFi.status() != WL_CONNECTED) {
 			_connected = false;
@@ -155,7 +157,8 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 	Serial.println("Server IP Address:");
 	Serial.println(_ip);
 
-  	//dnsServer.start(DNS_PORT, "*", _ip);
+	dnsServer.setTTL(3600);
+	dnsServer.start(DNS_PORT, "*", _ip);
 
 	bool hasCustomUI = LittleFS.exists("/wifi-manager/index.html");
 
@@ -229,6 +232,23 @@ void WifiManagerClass::serveDefaultUI() {
             request->send_P(200, "text/html", html);
         }
 	});
+
+	_server.onNotFound([=](AsyncWebServerRequest *request) {
+        bool useGzip = acceptsCompressedResponse(request);
+
+        if (useGzip) {
+            Serial.println("Serving gzipped response");
+
+            AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip, gzipBytes);
+            response->addHeader("Content-Encoding", "gzip");
+            request->send(response);
+        } else {
+            Serial.println("Serving uncompressed html");
+
+            request->send_P(200, "text/html", html);
+        }
+	});
+
 }
 
 bool WifiManagerClass::acceptsCompressedResponse(AsyncWebServerRequest *request) {
