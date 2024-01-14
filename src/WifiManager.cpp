@@ -168,6 +168,9 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 			.setDefaultFile("index.html");
 
 		Serial.println("Serving custom UI from /wifi-manager");
+		_server.onNotFound([=](AsyncWebServerRequest *request) {
+			request->redirect("/");
+		});
 	} else {
 		serveDefaultUI();
 
@@ -234,19 +237,7 @@ void WifiManagerClass::serveDefaultUI() {
 	});
 
 	_server.onNotFound([=](AsyncWebServerRequest *request) {
-        bool useGzip = acceptsCompressedResponse(request);
-
-        if (useGzip) {
-            Serial.println("Serving gzipped response");
-
-            AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", gzip, gzipBytes);
-            response->addHeader("Content-Encoding", "gzip");
-            request->send(response);
-        } else {
-            Serial.println("Serving uncompressed html");
-
-            request->send_P(200, "text/html", html);
-        }
+		request->redirect("/");
 	});
 
 }
