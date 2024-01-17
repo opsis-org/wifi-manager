@@ -163,13 +163,18 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 	bool hasCustomUI = LittleFS.exists("/wifi-manager/index.html");
 
 	if (hasCustomUI) {
+		
 		_server
 			.serveStatic("/", LittleFS, "/wifi-manager")
 			.setDefaultFile("index.html");
 
+		File file = LittleFS.open("/wifi-manager/index.html", "r");
+		String indexHTML = file.readString();
+		file.close();
+
 		Serial.println("Serving custom UI from /wifi-manager");
 		_server.onNotFound([=](AsyncWebServerRequest *request) {
-			request->redirect("/");
+			request->send(200, "text/html", indexHTML);
 		});
 	} else {
 		serveDefaultUI();
