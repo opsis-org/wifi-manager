@@ -29,7 +29,9 @@ WifiManagerClass::WifiManagerClass() : _server(80), _config() {
 
 void WifiManagerClass::check() {
   dnsServer.processNextRequest();
+#idef TARGET_RP2040
   MDNS.update();
+#endif
 
   if (_connected && millis() > _nextReconnectCheck) {
     if (WiFi.status() != WL_CONNECTED) {
