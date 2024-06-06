@@ -34,9 +34,11 @@ void WifiManagerClass::check() {
 
 			Serial.println("WiFi connection lost. Attempting to reconnect.");
 
-			// FIXME
-			//WiFi.reconnect();
+			#ifdef TARGET_RP2040
 			WiFi.disconnect();
+			#else
+			WiFi.reconnect();
+			#endif
 
 			waitForConnection();
 		}
@@ -86,12 +88,15 @@ bool WifiManagerClass::connectToWifi() {
 		return false;
 	}
 
+	#ifdef TARGET_RP2040		
 	WiFi.mode(WIFI_STA);
-	// FIXME
-	//WiFi.setSleep(WIFI_PS_NONE);
+	#else		
+	WiFi.mode(WIFI_MODE_STA);
+	WiFi.setSleep(WIFI_PS_NONE);
 
 	// Fixes issue with mDNS where hostname was not set (v1.0.1) and mDNS crashed (v1.0.2)
-	//WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+	WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+	#endif
 
 	if (_hostname != "") {
 		WiFi.setHostname(_hostname.c_str());
@@ -107,9 +112,6 @@ bool WifiManagerClass::connectToWifi() {
 	}
 
 	Serial.println("Connecting to WiFi...");
-
-	Serial.println(_ssid.c_str());
-	Serial.println(pass.c_str());
 
 	WiFi.begin(_ssid.c_str(), pass.c_str());
 
@@ -148,7 +150,9 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 	// Prepare list of available networks
 	_networks = getAvailableNetworks();
 
-  	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+	#ifdef TARGET_RP2040
+	WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+	#endif
 	WiFi.softAP(ssid);
 
 	_ssid = WiFi.softAPSSID();
@@ -214,8 +218,11 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 
 		delay(1000);
 
-		//ESP.restart();
+		#ifdef TARGET_RP2040
 		rp2040.reboot();
+		#else
+		ESP.restart();
+		#endif
 	});
 
 	_server.begin();

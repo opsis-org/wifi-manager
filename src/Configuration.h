@@ -1,8 +1,6 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
-#include <LittleFS.h>
-
 class Configuration {
 	protected:
 		void initLittleFS();
