@@ -28,8 +28,8 @@ WifiManagerClass::WifiManagerClass() : _server(80), _config() {
 }
 
 void WifiManagerClass::check() {
-  dnsServer.processNextRequest();
 #ifdef TARGET_RP2040
+  dnsServer.processNextRequest();
   MDNS.update();
 #endif
 
