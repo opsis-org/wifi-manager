@@ -15,7 +15,7 @@
 const byte DNS_PORT = 53;
 IPAddress apIP(192, 168, 4, 1);
 
-WifiManagerClass::WifiManagerClass() : _server(80), _config() {
+WifiManagerClass::WifiManagerClass() {
   _reconnectIntervalCheck = 5000;
   _connectionTimeout = 10000;
 
@@ -145,8 +145,8 @@ bool WifiManagerClass::waitForConnection() {
   return true;
 }
 
-void WifiManagerClass::startManagementServer() {
-  startManagementServer("WIFI-MANAGER");
+void WifiManagerClass::begin(AsyncWebServer *server) {
+  _server = server;
 }
 
 void WifiManagerClass::startManagementServer(const char *ssid) {
@@ -173,7 +173,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 
   if (hasCustomUI) {
 
-    _server.serveStatic("/", LittleFS, "/wifi-manager")
+    _server->serveStatic("/", LittleFS, "/wifi-manager")
         .setDefaultFile("index.html");
 
     File file = LittleFS.open("/wifi-manager/index.html", "r");
@@ -181,7 +181,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
     file.close();
 
     Serial.println("Serving custom UI from /wifi-manager");
-    _server.onNotFound([=](AsyncWebServerRequest *request) {
+    _server->onNotFound([=](AsyncWebServerRequest *request) {
       request->send(200, "text/html", indexHTML);
     });
   } else {
@@ -190,11 +190,11 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
     Serial.println("Serving default UI");
   }
 
-  _server.on("/networks", HTTP_GET, [=](AsyncWebServerRequest *request) {
+  _server->on("/networks", HTTP_GET, [=](AsyncWebServerRequest *request) {
     request->send(200, "application/json", _networks);
   });
 
-  _server.on("/credentials", HTTP_PUT, [=](AsyncWebServerRequest *request) {
+  _server->on("/credentials", HTTP_PUT, [=](AsyncWebServerRequest *request) {
     int params = request->params();
 
     for (int i = 0; i < params; i++) {
@@ -225,18 +225,18 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 #ifdef TARGET_RP2040
     rp2040.reboot();
 #else
-		ESP.restart();
+    ESP.restart();
 #endif
   });
 
-  _server.begin();
+  _server->begin();
 }
 
 void WifiManagerClass::serveDefaultUI() {
   Serial.printf("Compressed html: %d bytes\n", gzipBytes);
   Serial.printf("Uncompressed html: %d bytes\n", htmlBytes);
 
-  _server.on("/", HTTP_GET, [=](AsyncWebServerRequest *request) {
+  _server->on("/ui", HTTP_GET, [=](AsyncWebServerRequest *request) {
     bool useGzip = acceptsCompressedResponse(request);
 
     if (useGzip) {
@@ -253,7 +253,7 @@ void WifiManagerClass::serveDefaultUI() {
     }
   });
 
-  _server.onNotFound(
+  _server->onNotFound(
       [=](AsyncWebServerRequest *request) { request->redirect("/"); });
 }
 
