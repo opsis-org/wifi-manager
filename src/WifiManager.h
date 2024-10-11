@@ -9,24 +9,21 @@
 class WifiManagerClass {
 	public:
 		WifiManagerClass();
-
-		bool connectToWifi();
-
-		void startManagementServer();
-		void startManagementServer(const char *ssid);
-
-		void check();
-
+  		void begin(AsyncWebServer *server);
+  		void startManagementServer(const char *ssid);
 		String getHostname();
 		String getSSID();
 		int8_t getRSSI();
 		IPAddress getIP();
-
+		bool connectToWifi();
 		bool isConnected();
+		void check();
 
 	private:
+
+		AsyncWebServer *_server = nullptr;
+
 		DNSServer dnsServer;
-		AsyncWebServer _server;
 		Configuration _config;
 
 		bool _connected;
