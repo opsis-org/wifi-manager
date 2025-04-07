@@ -198,7 +198,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
     int params = request->params();
 
     for (int i = 0; i < params; i++) {
-      AsyncWebParameter *param = request->getParam(i);
+      const AsyncWebParameter *param = request->getParam(i);
 
       if (param->isPost()) {
         if (param->name() == "ssid") {
@@ -260,7 +260,7 @@ void WifiManagerClass::serveDefaultUI() {
 bool WifiManagerClass::acceptsCompressedResponse(
     AsyncWebServerRequest *request) {
   if (request->hasHeader("Accept-Encoding")) {
-    AsyncWebHeader *header = request->getHeader("Accept-Encoding");
+    const AsyncWebHeader *header = request->getHeader("Accept-Encoding");
     String value = header->value();
     bool hasGzip = value.indexOf("gzip") > -1;
 
