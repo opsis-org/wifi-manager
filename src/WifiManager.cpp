@@ -1,7 +1,7 @@
 #include "WifiManager.h"
 
 #include <ESPAsyncWebServer.h>
-#ifdef TARGET_RP2040
+#ifdef ARDUINO_ARCH_RP2040
 #include <LEAmDNS.h>
 #else
 #include <ESPmDNS.h>
@@ -28,7 +28,7 @@ WifiManagerClass::WifiManagerClass() : _server(80), _config() {
 }
 
 void WifiManagerClass::check() {
-#ifdef TARGET_RP2040
+#ifdef ARDUINO_ARCH_RP2040
   dnsServer.processNextRequest();
   MDNS.update();
 #endif
@@ -39,7 +39,7 @@ void WifiManagerClass::check() {
 
       Serial.println("WiFi connection lost. Attempting to reconnect.");
 
-#ifdef TARGET_RP2040
+#ifdef ARDUINO_ARCH_RP2040
       WiFi.disconnect();
 #else
       WiFi.reconnect();
@@ -93,7 +93,7 @@ bool WifiManagerClass::connectToWifi() {
     return false;
   }
 
-#ifdef TARGET_RP2040
+#ifdef ARDUINO_ARCH_RP2040
   WiFi.mode(WIFI_STA);
 #else
   WiFi.mode(WIFI_MODE_STA);
@@ -155,7 +155,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
   // Prepare list of available networks
   _networks = getAvailableNetworks();
 
-#ifdef TARGET_RP2040
+#ifdef ARDUINO_ARCH_RP2040
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 #endif
   WiFi.softAP(ssid);
@@ -222,7 +222,7 @@ void WifiManagerClass::startManagementServer(const char *ssid) {
 
     delay(1000);
 
-#ifdef TARGET_RP2040
+#ifdef ARDUINO_ARCH_RP2040
     rp2040.reboot();
 #else
 		ESP.restart();
