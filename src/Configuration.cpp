@@ -68,6 +68,9 @@ String Configuration::readFile(fs::FS &fs, const char *path) {
 		break;
 	}
 
+	fileContent.trim();
+
+	file.close();
 	return fileContent;
 }
 
@@ -87,4 +90,5 @@ void Configuration::writeFile(fs::FS &fs, const char *path, const char *message)
 	} else {
 		Serial.println("- write failed");
 	}
+	file.close();
 }

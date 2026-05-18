@@ -1,3 +1,15 @@
+// Local patched copy of opsis-org/wifi-manager (branch: use-common-server)
+// Changes vs upstream:
+//   1. waitForConnection(): added delay(10) so the WiFi driver gets CPU time
+//      on RP2040 (without it the busy-loop starves the CYW43 stack and the
+//      connection never completes within the 10-second window).
+//   2. waitForConnection(): timeout extended from 10 s to 20 s.
+//   3. connectToWifi(): WiFi.disconnect() + delay(200) before WiFi.begin()
+//      so each retry starts from a clean state.
+//   4. connectToWifi(): prints the SSID being used to aid debugging.
+//   5. Configuration::readFile() (in Configuration.cpp): calls .trim() on
+//      the result so stray CR/LF or whitespace can't corrupt credentials.
+
 #include "WifiManager.h"
 
 #include <ESPAsyncWebServer.h>
@@ -17,7 +29,7 @@ IPAddress apIP(192, 168, 4, 1);
 
 WifiManagerClass::WifiManagerClass() {
   _reconnectIntervalCheck = 5000;
-  _connectionTimeout = 10000;
+  _connectionTimeout = 20000;
 
   _nextReconnectCheck = 0;
   _connected = false;
@@ -89,9 +101,11 @@ bool WifiManagerClass::connectToWifi() {
 
   if (_ssid == "") {
     Serial.println("No connection information specified");
-
     return false;
   }
+
+  Serial.printf("[WifiManager] SSID='%s' (len=%d), pass len=%d, hostname='%s'\n",
+                _ssid.c_str(), _ssid.length(), pass.length(), _hostname.c_str());
 
 #ifdef ARDUINO_ARCH_RP2040
   WiFi.mode(WIFI_STA);
@@ -103,6 +117,9 @@ bool WifiManagerClass::connectToWifi() {
   // (v1.0.2)
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
 #endif
+
+  WiFi.disconnect();
+  delay(200);
 
   if (_hostname != "") {
     WiFi.setHostname(_hostname.c_str());
@@ -132,9 +149,9 @@ bool WifiManagerClass::waitForConnection() {
   while (WiFi.status() != WL_CONNECTED) {
     if (millis() > timeout) {
       Serial.println("Unable to connect to WIFI");
-
       return false;
     }
+    delay(10);
   }
 
   _ip = WiFi.localIP();
@@ -239,17 +256,15 @@ void WifiManagerClass::serveDefaultUI() {
   _server->on("/ui", HTTP_GET, [=](AsyncWebServerRequest *request) {
     bool useGzip = acceptsCompressedResponse(request);
 
-    if (useGzip) {
+    if (useGzip && gzipBytes > 0) {
       Serial.println("Serving gzipped response");
-
       AsyncWebServerResponse *response =
-          request->beginResponse_P(200, "text/html", gzip, gzipBytes);
+          request->beginResponse(200, "text/html", gzip, gzipBytes);
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     } else {
       Serial.println("Serving uncompressed html");
-
-      request->send_P(200, "text/html", html);
+      request->send(200, "text/html", html);
     }
   });
 
