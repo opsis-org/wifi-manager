@@ -258,7 +258,7 @@ void WifiManagerClass::serveDefaultUI() {
       request->send(response);
     } else {
       Serial.println("Serving uncompressed html");
-      request->send(200, "text/html", html);
+      request->send_P(200, "text/html", html);
     }
   });
 
