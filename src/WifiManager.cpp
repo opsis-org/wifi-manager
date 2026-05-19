@@ -17,7 +17,7 @@ IPAddress apIP(192, 168, 4, 1);
 
 WifiManagerClass::WifiManagerClass() {
   _reconnectIntervalCheck = 5000;
-  _connectionTimeout = 10000;
+  _connectionTimeout = 20000; // [FIX] was 10000 – Pico W sometimes needs >10 s
 
   _nextReconnectCheck = 0;
   _connected = false;
@@ -89,9 +89,14 @@ bool WifiManagerClass::connectToWifi() {
 
   if (_ssid == "") {
     Serial.println("No connection information specified");
-
     return false;
   }
+
+  // [FIX] Print what we are actually connecting with so credential problems
+  // are immediately visible in the serial log.
+  Serial.printf(
+      "[WifiManager] SSID='%s' (len=%d), pass len=%d, hostname='%s'\n",
+      _ssid.c_str(), _ssid.length(), pass.length(), _hostname.c_str());
 
 #ifdef ARDUINO_ARCH_RP2040
   WiFi.mode(WIFI_STA);
@@ -103,6 +108,10 @@ bool WifiManagerClass::connectToWifi() {
   // (v1.0.2)
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
 #endif
+
+  // [FIX] Disconnect before beginning so every retry starts clean.
+  WiFi.disconnect();
+  delay(200);
 
   if (_hostname != "") {
     WiFi.setHostname(_hostname.c_str());
@@ -132,9 +141,11 @@ bool WifiManagerClass::waitForConnection() {
   while (WiFi.status() != WL_CONNECTED) {
     if (millis() > timeout) {
       Serial.println("Unable to connect to WIFI");
-
       return false;
     }
+    // [FIX] Without this delay the busy-loop starves the CYW43 WiFi driver
+    // on RP2040 and the connection handshake never completes.
+    delay(10);
   }
 
   _ip = WiFi.localIP();
@@ -239,17 +250,15 @@ void WifiManagerClass::serveDefaultUI() {
   _server->on("/ui", HTTP_GET, [=](AsyncWebServerRequest *request) {
     bool useGzip = acceptsCompressedResponse(request);
 
-    if (useGzip) {
+    if (useGzip && gzipBytes > 0) {
       Serial.println("Serving gzipped response");
-
       AsyncWebServerResponse *response =
-          request->beginResponse_P(200, "text/html", gzip, gzipBytes);
+          request->beginResponse(200, "text/html", gzip, gzipBytes);
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     } else {
       Serial.println("Serving uncompressed html");
-
-      request->send_P(200, "text/html", html);
+      request->send(200, "text/html", html);
     }
   });
 

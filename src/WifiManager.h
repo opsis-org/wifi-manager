@@ -10,7 +10,7 @@ class WifiManagerClass {
 	public:
 		WifiManagerClass();
   		void begin(AsyncWebServer *server);
-  		void startManagementServer(const char *ssid);
+  		void startManagementServer(const char *ssid = "WIFI-MANAGER");
 		String getHostname();
 		String getSSID();
 		int8_t getRSSI();
